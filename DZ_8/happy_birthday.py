@@ -20,16 +20,16 @@ def get_birthday_per_week(users):
     for item in valid_list:
         date = item.get('birthday')
         valid_year = date.replace(year=current_year)
-        if valid_year.strftime("%A") in ['Saturday', 'Sunday', 'Monday']:
-            monday.append(item.get('name'))
-        elif valid_year.strftime("%A") == 'Tuesday':
-            tuesday.append(item.get('name'))
-        elif valid_year.strftime("%A") == 'Wednesday':
-            wednesday.append(item.get('name'))
-        elif valid_year.strftime("%A") == 'Thursday':
-            thursday.append(item.get('name'))
-        elif valid_year.strftime("%A") == 'Friday':
-            friday.append(item.get('name'))
+        day = valid_year.strftime("%A")
+        full_week.get(day).append(item.get('name'))
+
+    # Проходим по ключам словаря "workdays" берем значение ключа и делаем из него строку.
+    # Проверяем длину списка если она не равна 0 то выводим в консоль
+    for work_day in work_days.keys():
+        list_names = work_days.get(work_day)
+        valid_names = ', '.join(list_names)
+        if len(list_names) != 0:
+            print(f'{work_day}: {valid_names}')
 
 
 if __name__ == '__main__':
@@ -40,6 +40,18 @@ if __name__ == '__main__':
     wednesday = []
     thursday = []
     friday = []
+    work_days = {
+        'Monday': monday,
+        'Tuesday': tuesday,
+        'Wednesday': wednesday,
+        'Thursday': thursday,
+        'Friday': friday,
+    }
+    full_week = {
+        'Saturday': monday,
+        'Sunday': monday,
+        **work_days,
+    }
 
     get_birthday_per_week([{'name': 'Dmytro', 'birthday': datetime.datetime(1998, 10, 17)},
                            {'name': 'Anton', 'birthday': datetime.datetime(1998, 10, 5)},
@@ -50,14 +62,3 @@ if __name__ == '__main__':
                            {'name': 'Nick', 'birthday': datetime.datetime(1998, 10, 25)},
                            {'name': 'Nikita', 'birthday': datetime.datetime(1998, 10, 26)},
                            {'name': 'Vitaliy', 'birthday': datetime.datetime(1998, 10, 30)}])
-    # Делаем наши списки строками и выводим
-    monday = ', '.join(monday)
-    tuesday = ', '.join(tuesday)
-    wednesday = ', '.join(wednesday)
-    thursday = ', '.join(thursday)
-    friday = ', '.join(friday)
-    if len(monday) != 0: print(f'Monday : {monday}')
-    if len(tuesday) != 0: print(f'Tuesday : {tuesday}')
-    if len(wednesday) != 0: print(f'Wednesday : {wednesday}')
-    if len(thursday) != 0: print(f'Thursday : {thursday}')
-    if len(friday) != 0: print(f'Friday : {friday}')
