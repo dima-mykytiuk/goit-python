@@ -4,9 +4,8 @@ phone_dict = {
 }
 
 
-def hello_handler(command):
-    if command.lower() == 'hello':
-        return 'How can i help you?'
+def hello_handler():
+    return 'How can i help you?'
 
 
 def add_handler(command):
@@ -42,7 +41,7 @@ if __name__ == '__main__':
     while wait_for_command is True:
         user_command = input('Write command: ')
         if user_command.lower() == 'hello':
-            print(hello_handler(user_command))
+            print(hello_handler())
         elif user_command.lower().startswith('add '):
             print(add_handler(user_command))
         elif user_command.lower().startswith('change '):
