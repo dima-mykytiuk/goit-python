@@ -4,25 +4,57 @@ phone_dict = {
 }
 
 
+def input_error(func):
+    def inner(command):
+        try:
+            return func(command)
+        except KeyError as key_err:
+            return key_err
+        except ValueError as val_err:
+            return val_err
+        except IndexError:
+            return f'Give me data for command,name and phone for commands "change" or "add", name for command "phone"'
+
+    return inner
+
+
 def hello_handler():
     return 'How can i help you?'
 
 
+@input_error
 def add_handler(command):
     split = command.split(' ')
-    phone_dict[split[1].capitalize()] = split[2]
-    return f'Successfully added user phone: {split[1].capitalize()}!!'
+    if split[1].capitalize() not in phone_dict.keys():
+        if split[2].isdigit():
+            phone_dict[split[1].capitalize()] = split[2]
+            return f'Successfully added user phone: {split[1].capitalize()}!!'
+        else:
+            return f'Phone number must be digit'
+    else:
+        return f'There is user with that name, change name!!'
 
 
+@input_error
 def change_handler(command):
     split = command.split(' ')
-    phone_dict[split[1].capitalize()] = split[2]
-    return f'Successfully changed phone for user: {split[1].capitalize()}!!'
+    if split[1].capitalize() in phone_dict.keys():
+        if split[2].isdigit():
+            phone_dict[split[1].capitalize()] = split[2]
+            return f'Successfully changed phone for user: {split[1].capitalize()}!!'
+        else:
+            return f'Phone number must be digit'
+    else:
+        return f'There is no user with that name'
 
 
+@input_error
 def show_phone_handler(command):
     split = command.split(' ')
-    return f'{phone_dict.get(split[1].capitalize())}'
+    if phone_dict.get(split[1].capitalize()):
+        return f'{phone_dict.get(split[1].capitalize())}'
+    else:
+        return f'There is no phone with that name, please enter valid name!!'
 
 
 def show_all_handler():
@@ -36,20 +68,31 @@ def close():
     return 'Good bye!'
 
 
-if __name__ == '__main__':
-    wait_for_command = True
-    while wait_for_command is True:
+def main():
+    user_input_handlers = {
+        'add': add_handler,
+        'change': change_handler,
+        'phone': show_phone_handler,
+    }
+    default_commands = {
+        'help': lambda: f'This bot supports these commands: {", ".join(commands_list)}',
+        'hello': hello_handler,
+        'show all': show_all_handler,
+    }
+    commands_list = ['help', 'hello', 'add', 'change', 'phone', 'show all', 'good bye', 'close', 'exit']
+    while True:
         user_command = input('Write command: ')
-        if user_command.lower() == 'hello':
-            print(hello_handler())
-        elif user_command.lower().startswith('add '):
-            print(add_handler(user_command))
-        elif user_command.lower().startswith('change '):
-            print(change_handler(user_command))
-        elif user_command.lower().startswith('phone '):
-            print(show_phone_handler(user_command))
-        elif user_command.lower() == ('show all'):
-            print(show_all_handler())
-        elif user_command.lower() in ["good bye", "close", "exit"]:
+        user_input = user_command.lower()
+        if user_input.split()[0] in user_input_handlers.keys():
+            print(user_input_handlers.get(user_input.split()[0])(user_command))
+        elif user_input in default_commands.keys():
+            print(default_commands.get(user_input)())
+        elif user_input in ['good bye', 'close', 'exit']:
             print(close())
             break
+        else:
+            print('Invalid command')
+
+
+if __name__ == '__main__':
+    main()
