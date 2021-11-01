@@ -24,17 +24,20 @@ def hello_handler():
 
 @input_error
 def add_handler(command):
-    phone_dict[command[1].capitalize()] = int(command[2])
-    return f'Successfully added user phone: {command[1].capitalize()}!!'
+    name = command[1].capitalize()
+    phone = command[2]
+    phone_dict[name] = int(phone)
+    return f'Successfully added user phone: {name}!!'
 
 
 @input_error
 def change_handler(command):
     name = command[1].capitalize()
+    phone = command[2]
     if name not in phone_dict.keys():
         return phone_dict[name]
     else:
-        phone_dict[name] = int(command[2])
+        phone_dict[name] = int(phone)
         return f'Successfully changed phone for user: {name}!!'
 
 
