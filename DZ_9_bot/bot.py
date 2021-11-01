@@ -68,11 +68,11 @@ def main():
     user_command = input('Write command: ')
     while user_command not in ['good bye', 'close', 'exit']:
         user_input = user_command.lower().split()
-        name = user_input[0]
-        if user_input[0] in user_commands.keys():
-            print(user_commands.get(name)(user_input))
-        elif user_input[0] in default_commands.keys():
-            print(default_commands.get(name)())
+        cmd_name = user_input[0]
+        if cmd_name in user_commands.keys():
+            print(user_commands.get(cmd_name)(user_input))
+        elif cmd_name in default_commands.keys():
+            print(default_commands.get(cmd_name)())
         else:
             print('Invalid command')
         user_command = input('Write command: ')
