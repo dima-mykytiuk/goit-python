@@ -30,6 +30,18 @@ class AddressBook(UserDict):
         self.data[record.name.value] = record
 
 
+class Field:
+    pass
+
+
+class Name:
+    pass
+
+
+class Phone:
+    pass
+
+
 if __name__ == '__main__':
     Bill = Record('Bill')
     print(Bill.add_phone('Bill', 123))  # Successfully added phone for user: Bill!!
