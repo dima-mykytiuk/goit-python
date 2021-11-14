@@ -26,19 +26,8 @@ class Record:
 
 
 class AddressBook(UserDict):
-    pass
-
-
-class Field:
-    pass
-
-
-class Name:
-    pass
-
-
-class Phone:
-    pass
+    def add_record(self, record):
+        self.data[record.name.value] = record
 
 
 if __name__ == '__main__':
