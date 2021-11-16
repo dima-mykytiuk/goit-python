@@ -151,8 +151,8 @@ if __name__ == '__main__':
     Bill = Record(name=Name('Bill'), phones=Phone('43'), birthday=Birthday('1-1-1998'))  # Invalid number: 43 for class Phone!!!
     print(Bill.phones.value)  # None
     print(Bill.add_phone('521421214241'))  # Number was added successfully: 521421214241!!!
-    print(Bill.add_phone('121421214241'))  # Number was added successfully: 521421214241!!!
-    print(Bill.phones.value)  # ['521421214241']
+    print(Bill.add_phone('121421214241'))  # Number was added successfully: 121421214241!!!
+    print(Bill.phones.value)  # ['521421214241', '121421214241']
     print(Bill.birthday.value)  # 1998-01-01
     print(Bill.change_phone('121421214241', '222222222222'))  # Successfully changed phone for user: Bill!!
     Bill.birthday.value = '17-10-1998'  # Successfully changed date
