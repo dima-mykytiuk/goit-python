@@ -162,3 +162,6 @@ if __name__ == '__main__':
     add_rec = address.add_record(Bill)
     print(add_rec)  # {'Bill': <__main__.Record object at 0x7f9060086e20>}
     print(Bill.data)  # {'name': <__main__.Name object at 0x7fd1f80b6f10>, 'birthday': <__main__.Birthday object at 0x7fd1f80b6d90>, 'phones': <__main__.Phone object at 0x7fd1f80b6e50>}
+    Petya = Record(name=Name('Petya'), phones=Phone('111111111111'), birthday=Birthday('1-1-1997'))
+    add_rec = address.add_record(Petya)
+    print(add_rec)  # {'Bill': <__main__.Record object at 0x7fc2980b69d0>, 'Petya': <__main__.Record object at 0x7fc2980ab2b0>}
