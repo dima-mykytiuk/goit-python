@@ -4,7 +4,7 @@ from datetime import datetime
 
 
 class AddressBook(UserDict):
-    # Добавляем элементы в словарь если получим список или если получим только 1 элемент
+    # Add items to the dictionary if we get a list or if we get only 1 item
     def add_record(self, record):
         if isinstance(record, list):
             for item in record:
@@ -12,9 +12,9 @@ class AddressBook(UserDict):
         else:
             self.data[record.name.value] = record
         return self.data
-    # Итерируемся по данным в словаре данных и добавляем в строку данные этого пользователя для последующего вывода
-    # Если в итератор заходит число N которое больше чем длина словаря то возвращаем ошибку.
 
+    # Iterate over the data in the data dictionary and add this user data to the string for later output
+    # If N is greater than the length of the dictionary, then we return an error.
     def iterator(self, N):
         new = iter(self.data.values())
         if len(self.data.values()) < N:
@@ -64,11 +64,11 @@ class Phone(Field):
     def value(self):
         return self.__value
 
-    # Создаем новый список для наполнения его телефонами пользователя, если пользователь ввел несколько мобильных
-    # телефонов в списке тогда мы распаковываем этот список и пороверяем проходит ли проверку этот телефон если да то
-    # добавляем его в список, если список не был наполнен то задаем значинию мфдгу None если все норм тогда присваеваем
-    # value этот список, если пользователь просто ввел 1 телефон строкой тогда мы проверяем на корректность этот телефон
-    # и если все норма то присваиваем value этот телефон если что-то не так то присваиваем value None.
+    # Create a new list to fill it with the user's phones, if the user has entered several mobile phones in the list,
+    # then we unpack this list and check whether this phone passes the validation, if so, add it to the list,
+    # if the list was not filled, then set the value to None if all Normally, then we assign value to this list,
+    # if the user simply entered 1 phone number in a string, then we check this phone for correctness and
+    # if everything is normal, then we assign value to this phone, if something is wrong, then we assign value None.
     @value.setter
     def value(self, new_value):
         new_list = []
@@ -104,10 +104,10 @@ class Birthday(Field):
     @property
     def value(self):
         return self.__value
-    # Ищем в строке числа с помощью регулярки если получаем список с 3 значениями делаем datetime обьект
-    # получаем возраст пользователя и если все проходит проверку то присваиваем значению value наш datetime обьект
-    # Если пользователь вводит не корректную дату или дату где получается что ему больше 100 лет тогда выдаем ошибку и
-    # присваиваем value None
+
+    # We are looking for numbers in the string using the regular, if we get a list with 3 values,
+    # we make a datetime object, we get the user's age, and if everything passes the validation,
+    # then we assign the value to our datetime object. assign value to None
     @value.setter
     def value(self, new_value):
         try:
@@ -126,21 +126,19 @@ class Birthday(Field):
 
 
 class Record:
-    # Здесь я добавил слишком много в init не знаю или так можно. Сделал это для того чтобы сразу value
-    # присваивать значения которые заходят в класс и была проверка на то что ввел пользователь
-    # чтобы пользователь если вводил не корректные значения чтобы использовались setter определенных классов
+    # Here, in init, I made sure to immediately assign value to the values that enter the class and there was a check on
+    # what the user entered so that the user, if he entered incorrect values, would use the setter of certain classes
     def __init__(self, name, phones=Phone(None), birthday=Birthday(None)):
         self.name = name
         self.phones = phones
         self.birthday = birthday
-        self.data = AddressBook()  # !!!!!!!!!!!!!!!!
         self.birthday.value = birthday.value
         self.phones.value = phones.value
 
-    # Делаем проверку введенного пользователем телефона если все нормально то проверяем были ли у нас раньше какие-то
-    # данные в телефонной книге если были то мы просто добавляем к списку телефон который вошел в функцию
-    # если у нас до этого value было None то мы присваиваем value наш телефон.
-    # если телефон не прошел проверку выводим пользователю ошибку
+    # We do a check of the phone entered by the user, if everything is fine, then we check whether
+    # we had any data in the phone book before, if there was, then we simply append the phone that entered
+    # the function to the list, if we had None before this value, then we assign value to our phone.
+    # if the phone has not passed the validation, we display an error to the user
     def add_phone(self, phones):
         if len(phones) == 12 and phones.isdigit():
             if self.phones.value is None:
@@ -152,9 +150,10 @@ class Record:
         else:
             return f'Invalid phone format or length, phone must be only digit and 12 numbers!!!'
 
-    # Проверяем есть ли у нас в данных телефон который надо изменить если есть то проверяем новый телефон на корректность
-    # Если все проверки прошли успешно тогда удаляем старый телефон и добавляем новый если что-то не так то возвращаем пользователю ошибку
-    # если старого номера нету в данных AddressBook то возвращаем пользователю ошибку
+    # We check if we have a phone in the data that needs to be changed if there is,
+    # then we check the new phone for correctness If all validations were successful,
+    # then we delete the old phone and add a new one, if something is wrong, we return the error to the user
+    # if the old number is not in the AddressBook data, then we return user error
     def change_phone(self, old_phone, new_phone):
         if old_phone in self.phones.value:
             if len(new_phone) == 12 and new_phone.isdigit():
@@ -162,20 +161,21 @@ class Record:
                 self.phones.value.append(new_phone)
                 return f'Successfully changed phone for user: {self.name.value}!!'
             else:
-                print(f'Invalid phone: {new_phone}')
+                return f'Invalid phone: {new_phone}'
         else:
             return 'Error i dont have such phone in my AddressBook!!'
 
-    # Удаляем телефон который ввел пользователь если он есть в данных AddressBook
+    # Delete the phone that the user entered if it is in the AddressBook data
     def delete_phone(self, phone):
         if phone in self.phones.value:
             self.phones.value.remove(phone)
-            return f'Successfully deleted phone for user: {self.name.value}!!\n{self.data}'
+            return f'Successfully deleted phone for user: {self.name.value}!!'
         else:
             return 'Error i dont have such phone in my AddressBook!!'
 
-    # Рассчитываем сколько дней до дня рождения контакта в AddressBook. Меняем год на текущий чтобы получать правильные
-    # значения проверяем прошло ли уже день рождение у нашего пользователя или нет и возвращаем количество дней до ДР
+    # We calculate how many days until the birthday of a contact in AddressBook.
+    # We change the year to the current one in order to get the correct values,
+    # we check whether our user's birthday has already passed or not and return the number of days before the birthday
     def days_to_birthday(self):
         valid_year = self.birthday.value.replace(year=datetime.now().year)
         if valid_year.month < datetime.now().month:
