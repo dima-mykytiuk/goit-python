@@ -7,25 +7,30 @@ class AddressBook(UserDict):
     # Add items to the dictionary if we get a list or if we get only 1 item
     def add_record(self, record):
         if isinstance(record, list):
-            for item in record:
-                self.data[item.name.value] = item
+            for value in record:
+                self.data[value.name.value] = value
         else:
             self.data[record.name.value] = record
         return self.data
 
-    # Iterate over the data in the data dictionary and add this user data to the string for later output
-    # If N is greater than the length of the dictionary, then we return an error.
+    # Iterate over the data in the data dictionary and add this user data to the list for later output
+    # I have used an iterator to return a certain number of values entered by the user. I have used list slice.
+    # I used an iterator when the length of the list was equal to the number entered by the user
+    # and then I used an iterator to display the remaining items
     def iterator(self, N):
-        new = iter(self.data.values())
-        if len(self.data.values()) < N:
-            return f'I dont have {N} contacts in my AddressBook!!'
-        res = ''
+        CONST_N = N
+        iterable = iter(self.data.values())
+        contact_list = []
         num = 0
-        while num < N:
-            next_it = next(new)
-            res += f'Name: {next_it.name.value}, Phones: {next_it.phones.value}, Birthday: {next_it.birthday.value}\n'
-            num += 1
-        return res
+        while len(contact_list) != len(self.data.values()):
+            rec = next(iterable)
+            contact_list.append([f'Name: {rec.name.value}, Phones: {rec.phones.value}, Birthday: {rec.birthday.value}'])
+            if len(contact_list) == N:
+                yield contact_list[num:N]
+                num = num + CONST_N
+                N += CONST_N
+        if N / len(contact_list) != 0:
+            yield contact_list[num:]
 
 
 class Field:
@@ -83,16 +88,16 @@ class Phone(Field):
                 if len(new_list) != 0:
                     self.__value = new_list
                 else:
-                    self.__value = None
+                    self.__value = []
             except:
                 print('Invalid phone format or length, phone must be only digit and 12 numbers!!!')
-                self.__value = None
+                self.__value = []
         elif isinstance(new_value, str):
             if len(new_value) == 12 and new_value.isdigit():
                 self.__value = [new_value]
                 print(f'Number was added successfully: {new_value}!!!')
             else:
-                self.__value = None
+                self.__value = []
                 print(f'Invalid number: {new_value} for class Phone!!!')
 
 
@@ -141,12 +146,8 @@ class Record:
     # if the phone has not passed the validation, we display an error to the user
     def add_phone(self, phones):
         if len(phones) == 12 and phones.isdigit():
-            if self.phones.value is None:
-                self.phones.value = [phones]
-                return f'Number was added successfully: {phones}!!!'
-            else:
-                self.phones.value.append(phones)
-                return f'Number was added successfully: {phones}!!!'
+            self.phones.value.append(phones)
+            return f'Number was added successfully: {phones}!!!'
         else:
             return f'Invalid phone format or length, phone must be only digit and 12 numbers!!!'
 
@@ -187,7 +188,7 @@ class Record:
 
 
 if __name__ == '__main__':
-    Bill = Record(name=Name('Bill'), phones=Phone('43'), birthday=Birthday('1-1-1998'))  # Invalid number: 43 for class Phone!!!
+    Bill = Record(name=Name('Bill'), phones=Phone('4333'), birthday=Birthday('1-1-1998'))  # Invalid number: 43 for class Phone!!!
     print(Bill.phones.value)  # None
     print(Bill.add_phone('521421214241'))  # Number was added successfully: 521421214241!!!
     print(Bill.add_phone('121421214241'))  # Number was added successfully: 521421214241!!!
@@ -198,8 +199,8 @@ if __name__ == '__main__':
     print(Bill.birthday.value)  # 1998-10-17
     print(Bill.days_to_birthday())  # Birthday in 335 days!!!
     address = AddressBook()
-    Petya = Record(name=Name('Petya'), phones=Phone('111111111111'), birthday=Birthday('1-1-1997'))
-    Zhenya = Record(name=Name('Zhenya'), phones=Phone('222222222222'), birthday=Birthday('2-1-1897'))  # Invalid date for class Birthday!!!
+    Petya = Record(name=Name('Petya'), phones=Phone('211111111111'), birthday=Birthday('1-1-1997'))
+    Zhenya = Record(name=Name('Zhenya'), phones=Phone('211122222222'), birthday=Birthday('2-1-1897'))  # Invalid date for class Birthday!!!
     Dima = Record(name=Name('Dima'), phones=Phone('333333333333'), birthday=Birthday('3-1-1997'))
     Vasya = Record(name=Name('Vasya'), phones=Phone('444444444444'), birthday=Birthday('4-1-1997'))
     Anton = Record(name=Name('Anton'), phones=Phone('555555555555'), birthday=Birthday('5-1-1997'))
@@ -207,6 +208,6 @@ if __name__ == '__main__':
     add_rec = address.add_record([Bill, Petya, Zhenya, Dima, Vasya, Anton])
     address.add_record(Zheka)
     print(add_rec)  # {'Bill': <__main__.Record object at 0x7fea58027ac0>, 'Petya': <__main__.Record object at 0x7fea5801c250>, 'Zhenya': <__main__.Record object at 0x7fea5801c4f0>, 'Dima': <__main__.Record object at 0x7fea5801d9a0>, 'Vasya': <__main__.Record object at 0x7fea5801dd00>, 'Anton': <__main__.Record object at 0x7fea58023040>, 'Zheka': <__main__.Record object at 0x7fea580232b0>}
-    print(address.iterator(2))  # Name: Bill, Phones: ['521421214241', '222222222222'], Birthday: 1998-10-17 Name: Petya, Phones: ['111111111111'], Birthday: 1997-01-01
-    print(address.iterator(7))  # Name: Bill, Phones: ['521421214241', '222222222222'], Birthday: 1998-10-17 Name: Petya, Phones: ['111111111111'], Birthday: 1997-01-01 Name: Zhenya, Phones: ['222222222222'], Birthday: 2-1-1897 Name: Dima, Phones: ['333333333333'], Birthday: 1997-01-03 Name: Vasya, Phones: ['444444444444'], Birthday: 1997-01-04 Name: Anton, Phones: ['555555555555'], Birthday: 1997-01-05 Name: Zheka, Phones: ['555555555555'], Birthday: 1997-01-05
-    print(address.iterator(8))  # I dont have 8 contacts in my AddressBook!!
+    address_iterator = address.iterator(4)
+    for item in address_iterator:  #  [['Name: Bill, Phones: [], Birthday: 1998-01-01'], ["Name: Petya, Phones: ['211111111111'], Birthday: 1997-01-01"], ["Name: Zhenya, Phones: ['211122222222'], Birthday: None"], ["Name: Dima, Phones: ['333333333333'], Birthday: 1997-01-03"]]
+        print(item)                #  [["Name: Vasya, Phones: ['444444444444'], Birthday: 1997-01-04"], ["Name: Anton, Phones: ['555555555555'], Birthday: 1997-01-05"], ["Name: Zheka, Phones: ['555555555555'], Birthday: 1997-01-05"]]
