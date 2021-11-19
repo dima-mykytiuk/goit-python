@@ -17,20 +17,14 @@ class AddressBook(UserDict):
     # I have used an iterator to return a certain number of values entered by the user. I have used list slice.
     # I used an iterator when the length of the list was equal to the number entered by the user
     # and then I used an iterator to display the remaining items
-    def iterator(self, N):
-        CONST_N = N
+    def iterator(self, cont_for_1_iter):
         iterable = iter(self.data.values())
         contact_list = []
-        num = 0
         while len(contact_list) != len(self.data.values()):
             rec = next(iterable)
-            contact_list.append([f'Name: {rec.name.value}, Phones: {rec.phones.value}, Birthday: {rec.birthday.value}'])
-            if len(contact_list) == N:
-                yield contact_list[num:N]
-                num = num + CONST_N
-                N += CONST_N
-        if N / len(contact_list) != 0:
-            yield contact_list[num:]
+            contact_list.append(f'Name: {rec.name.value}, Phones: {rec.phones.value}, Birthday: {rec.birthday.value}')
+        for n in range(0, len(contact_list), cont_for_1_iter):
+            yield contact_list[n:n + cont_for_1_iter]
 
 
 class Field:
@@ -80,25 +74,17 @@ class Phone(Field):
         if isinstance(new_value, list):
             try:
                 for item in new_value:
-                    if len(item) == 12 and item.isdigit():
-                        new_list.append(item)
-                        print(f'Number was added successfully: {item}!!!')
-                    else:
-                        print(f'Invalid number: {item} for class Phone!!!')
-                if len(new_list) != 0:
-                    self.__value = new_list
-                else:
-                    self.__value = []
+                    new_list.append(item) if len(item) == 12 and item.isdigit() else print(f'Invalid number: {item}!!!')
+                self.__value = new_list if len(new_list) != 0 else []
             except:
                 print('Invalid phone format or length, phone must be only digit and 12 numbers!!!')
                 self.__value = []
         elif isinstance(new_value, str):
-            if len(new_value) == 12 and new_value.isdigit():
-                self.__value = [new_value]
-                print(f'Number was added successfully: {new_value}!!!')
-            else:
-                self.__value = []
-                print(f'Invalid number: {new_value} for class Phone!!!')
+            value_valid = len(new_value) == 12 and new_value.isdigit()
+            self.__value = [new_value] if value_valid else []
+            valid_message = f'Number was added successfully: {new_value}!!!'
+            error_message = f'Invalid number: {new_value} for class Phone!!!'
+            print(valid_message if value_valid else error_message)
 
 
 class Birthday(Field):
@@ -119,12 +105,12 @@ class Birthday(Field):
             date_numbers = re.findall(r'\d{1,4}', new_value)
             date_format = datetime(int(date_numbers[2]), int(date_numbers[1]), int(date_numbers[0]))
             age = datetime.today().year - date_format.year
-            if len(date_numbers) != 3 or age > 100:
-                print('Invalid date for class Birthday!!!')
-                self.__value = None
-            else:
-                self.__value = datetime(date_format.year, date_format.month, date_format.day).date()
-                print(f'Successfully set date')
+            nex_object = datetime(date_format.year, date_format.month, date_format.day).date()
+            value_invalid = len(date_numbers) != 3 or age > 100
+            self.__value = None if value_invalid else nex_object
+            invalid_message = 'Invalid date for class Birthday!!!'
+            valid_message = 'Successfully set date'
+            print(invalid_message if value_invalid else valid_message)
         except:
             print("Invalid date for class Birthday!!!")
             self.__value = None
@@ -145,16 +131,13 @@ class Record:
     # the function to the list, if we had None before this value, then we assign value to our phone.
     # if the phone has not passed the validation, we display an error to the user
     def add_phone(self, phones):
-        if len(phones) == 12 and phones.isdigit():
-            self.phones.value.append(phones)
-            return f'Number was added successfully: {phones}!!!'
-        else:
-            return f'Invalid phone format or length, phone must be only digit and 12 numbers!!!'
-
+        len(phones) == 12 and phones.isdigit() and self.phones.value.append(phones)
+        return f'valid number: {phones}!!!' if len(phones) == 12 and phones.isdigit() else f'Invalid number: {phones}!!!'
     # We check if we have a phone in the data that needs to be changed if there is,
     # then we check the new phone for correctness If all validations were successful,
     # then we delete the old phone and add a new one, if something is wrong, we return the error to the user
     # if the old number is not in the AddressBook data, then we return user error
+
     def change_phone(self, old_phone, new_phone):
         if old_phone in self.phones.value:
             if len(new_phone) == 12 and new_phone.isdigit():
@@ -167,12 +150,18 @@ class Record:
             return 'Error i dont have such phone in my AddressBook!!'
 
     # Delete the phone that the user entered if it is in the AddressBook data
+    # def delete_phone(self, phone):
+    #     if phone in self.phones.value:
+    #         self.phones.value.remove(phone)
+    #         return f'Successfully deleted phone for user: {self.name.value}!!'
+    #     else:
+    #         return 'Error i dont have such phone in my AddressBook!!'
     def delete_phone(self, phone):
-        if phone in self.phones.value:
-            self.phones.value.remove(phone)
-            return f'Successfully deleted phone for user: {self.name.value}!!'
-        else:
-            return 'Error i dont have such phone in my AddressBook!!'
+        phone_in_contacts = phone in self.phones.value
+        phone_in_contacts and self.phones.value.remove(phone)
+        valid_message = f'Successfully deleted phone for user: {self.name.value}!!'
+        error_message = 'Error i dont have such phone in my AddressBook!!'
+        return valid_message if phone_in_contacts else error_message
 
     # We calculate how many days until the birthday of a contact in AddressBook.
     # We change the year to the current one in order to get the correct values,
@@ -188,16 +177,16 @@ class Record:
 
 
 if __name__ == '__main__':
-    Bill = Record(name=Name('Bill'), phones=Phone('4333'), birthday=Birthday('1-1-1998'))  # Invalid number: 43 for class Phone!!!
-    print(Bill.phones.value)  # None
-    print(Bill.add_phone('521421214241'))  # Number was added successfully: 521421214241!!!
-    print(Bill.add_phone('121421214241'))  # Number was added successfully: 521421214241!!!
-    print(Bill.phones.value)  # ['521421214241']
-    print(Bill.birthday.value)  # 1998-01-01
-    print(Bill.change_phone('121421214241', '222222222222'))  # Successfully changed phone for user: Bill!!
+    Bill = Record(name=Name('Bill'), phones=Phone('43'), birthday=Birthday('aaa'))  # Invalid number: 43 for class Phone!!!
+    print(Bill.birthday.value)  # None
+    print(Bill.phones.value)  # []
+    print(Bill.add_phone('000000000000'))  # valid number: 000000000000!!!
+    print(Bill.phones.value)  # ['000000000000']
+    print(Bill.delete_phone('000000000000'))  # Successfully deleted phone for user: Bill!!
+    print(Bill.phones.value)  # []
     Bill.birthday.value = '17-10-1998'  # Successfully set date
     print(Bill.birthday.value)  # 1998-10-17
-    print(Bill.days_to_birthday())  # Birthday in 335 days!!!
+    print(Bill.days_to_birthday())  # Birthday in 332 days!!!
     address = AddressBook()
     Petya = Record(name=Name('Petya'), phones=Phone('211111111111'), birthday=Birthday('1-1-1997'))
     Zhenya = Record(name=Name('Zhenya'), phones=Phone('211122222222'), birthday=Birthday('2-1-1897'))  # Invalid date for class Birthday!!!
