@@ -98,29 +98,30 @@ class Birthday(Field):
     # then we assign the value to our datetime object.
     @value.setter
     def value(self, new_value):
-        try:
-            get_date_numbers = re.findall(r'\d{1,4}', new_value)
-            date_format = datetime(int(get_date_numbers[2]), int(get_date_numbers[1]), int(get_date_numbers[0]))
-            get_age = datetime.today().year - date_format.year
-            if len(get_date_numbers) != 3 or get_age > 100:
-                print('Invalid date for class Birthday!!!')
+        if new_value is not None:
+            try:
+                get_date_numbers = re.findall(r'\d{1,4}', new_value)
+                date_format = datetime(int(get_date_numbers[2]), int(get_date_numbers[1]), int(get_date_numbers[0]))
+                get_age = datetime.today().year - date_format.year
+                if len(get_date_numbers) != 3 or get_age > 100:
+                    print('Invalid date for class Birthday!!!')
+                    self.__value = None
+                else:
+                    self.__value = date_format.date()
+                    print(f'Successfully set date')
+            except IndexError as info:
+                print(f"Invalid date for class Birthday!!! {info}")
                 self.__value = None
-            else:
-                self.__value = date_format.date()
-                print(f'Successfully set date')
-        except IndexError as info:
-            print(f"Invalid date for class Birthday!!! {info}")
-            self.__value = None
-        except TypeError as info:
-            print(f"Invalid date for class Birthday!!! {info}")
-            self.__value = None
-        except ValueError as info:
-            print(f"Invalid date for class Birthday!!! {info}")
-            self.__value = None
+            except TypeError as info:
+                print(f"Invalid date for class Birthday!!! {info}")
+                self.__value = None
+            except ValueError as info:
+                print(f"Invalid date for class Birthday!!! {info}")
+                self.__value = None
 
 
 class Record:
-    def __init__(self, name, phones=Phone(None), birthday=Birthday('1242141214421521')):
+    def __init__(self, name, phones=Phone(None), birthday=Birthday(None)):
         self.name = name
         self.phones = phones
         self.birthday = birthday
