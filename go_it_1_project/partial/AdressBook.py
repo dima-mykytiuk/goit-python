@@ -1,5 +1,6 @@
 import os
 import pickle
+from sys import platform
 from collections import UserDict
 from typing import Optional, List
 from datetime import date, timedelta
@@ -132,12 +133,17 @@ class Record:
                 return p
 
     def __str__(self):
-        return f"""\nName: {self.name.value}
-Phones: {[p.value for p in self.phones]}
-Adress: {self.address.value}
-Birthday: {self.birthday.value}
-Email: {self.email.value}
-                   """
+        info = (
+            f"\nName : {self.name.value}\n"
+            + f"Phones: {[p.value for p in self.phones]}\n"
+        )
+        if self.address.value:
+            info += f"Adress: {self.address.value}\n"
+        if self.birthday.value:
+            info += f"Birthday: {self.birthday.value}\n"
+        if self.email.value:
+            info += f"Email: {self.email.value}\n"
+        return info
 
     def __repr__(self):
         return f"Record of {self.name.value}, phones {[p.value for p in self.phones]}"
@@ -173,6 +179,7 @@ Email: {self.email.value}
         # Check if user's birthday passed this year => year + 1
         if birthday_date <= date_now:
             birthday_date = birthday_date.replace(year=date_now.year + 1)
+
         days_delta = birthday_date - date_now
         return days_delta.days
 
@@ -188,20 +195,34 @@ class AddressBook(UserDict):
 
     def find_record(self, value: str) -> str:
         if value in self.data.keys():
-            return f"{self.data[value].name.value}: phones: {self.data[value].get_phones()}, birthday: {self.data[value].birthday.value}, Email: {self.data[value].email.value}, Address: {self.data[value].address.value}"
+            return self.data[value]
         else:
             return f"I do not have such contact: {value}"
 
     def delete_record(self, value: str) -> None:
         self.data.pop(value)
 
-    def save_data(self, name_file):
-        with open(name_file, "wb") as file:
-            pickle.dump(self.data, file)
+    def save_data(self) -> None:
+        folder_sep = "//" if platform == "win32" else "/"
 
-    def load_data(self, name_file):
-        if os.path.isfile(name_file) and os.path.getsize(name_file) > 0:
-            with open(name_file, "rb") as file:
+        jarvis_folder = os.environ["HOME"] + folder_sep + "jarvis"
+
+        if os.path.exists(jarvis_folder):
+            with open(jarvis_folder + folder_sep + "contacts.bin", "wb") as file:
+                pickle.dump(self.data, file)
+        else:
+            os.mkdir(jarvis_folder)
+            with open(jarvis_folder + folder_sep + "contacts.bin", "wb") as file:
+                pickle.dump(self.data, file)
+
+    def load_data(self) -> None:
+        folder_sep = "//" if platform == "win32" else "/"
+        jarvis_contacts = (
+            os.environ["HOME"] + folder_sep + "jarvis" + folder_sep + "contacts.bin"
+        )
+
+        if os.path.exists(jarvis_contacts):
+            with open(jarvis_contacts, "rb") as file:
                 self.data = pickle.load(file)
 
     def __str__(self):
@@ -210,6 +231,7 @@ class AddressBook(UserDict):
     def show_all_records(self):
         for record in self:
             print(record)
+        return "__________"
 
     def __iter__(self):
         return iter(self.data.values())
